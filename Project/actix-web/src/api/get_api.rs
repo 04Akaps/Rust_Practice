@@ -1,7 +1,7 @@
-use actix_web::{get,  HttpResponse, Responder};
+use actix_web::{get, HttpResponse, Responder};
 
 
-#[get("/")]
+#[get("/hello")]
 async fn hello() -> impl Responder {
     HttpResponse::Ok().body("Hello world!")
 }
@@ -10,3 +10,4 @@ async fn hello() -> impl Responder {
 async fn manual_hello() -> impl Responder {
     HttpResponse::Ok().body("Hey there!")
 }
+
