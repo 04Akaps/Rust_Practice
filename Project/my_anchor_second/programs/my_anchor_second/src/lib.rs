@@ -52,7 +52,7 @@ pub struct AddGif<'info> {
     #[account(mut)]
     pub base_account : Account<'info , BaseAccount>,
 }
-
+//
 #[derive(Debug, Clone, AnchorSerialize, AnchorDeserialize)]
 pub struct ItemStruct {
     pub gif_link:String,
