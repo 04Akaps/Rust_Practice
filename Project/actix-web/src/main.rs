@@ -1,11 +1,6 @@
 use actix_web::{ get, web, App,  HttpServer, HttpResponse};
 use std::sync::Mutex;
 
-struct AppStateWithCounter {
-    app_name: String,
-    counter : Mutex<i32>
-}
-
 mod api;
 mod utils;
 
@@ -16,6 +11,11 @@ use api::get_api::{
 use api::post_api::{
     echo
 };
+
+struct AppStateWithCounter {
+    app_name: String,
+    counter : Mutex<i32>
+}
 
 #[get("/")]
 async fn start(data : web::Data<AppStateWithCounter>) -> String {
