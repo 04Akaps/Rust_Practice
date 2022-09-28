@@ -21,14 +21,16 @@ pub mod my_anchor_second {
 
     pub fn add_gif(ctx: Context<AddGif>, gif_link:String) -> Result<() {
         let base_account = &mut ctx.accounts.base_account;
-        // basc
+        
         let user = &mut ctx.accounts.user;
 
         let item = ItemStruct {
             gif_link : gif_link.to_string(),
             user_address : *user.to_account_info().key,
         }
-
+        // 데이터를 user에게 누적하지 않는 이유는 굉장히 간단하다.
+        // program마다 새로운 계정이 user에게 맵핑되어서 생성되기 떄문에,
+        // program에 저장된 address에 데이터를 누적해 줘야하기 떄문이다.
         base_account.gif_list.push(item);
         base_account.total_gifs += 1;
         Ok(())
