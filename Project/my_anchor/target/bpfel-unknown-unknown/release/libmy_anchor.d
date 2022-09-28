@@ -1,0 +1,1 @@
+/Users/yuhojin/Desktop/Rust/rust_tutorial/Project/my_anchor/target/bpfel-unknown-unknown/release/libmy_anchor.rlib: /Users/yuhojin/Desktop/Rust/rust_tutorial/Project/my_anchor/programs/my_anchor/src/lib.rs
