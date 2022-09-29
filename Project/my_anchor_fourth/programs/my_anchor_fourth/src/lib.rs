@@ -132,10 +132,14 @@ pub mod my_anchor_fourth {
         }
 
         let mut iter = video.people_who_liked.iter();
+        // iter는 반복자를 만들어 주는 메서드 입니다.
+        // https://rinthel.github.io/rust-lang-book-ko/ch13-02-iterators.html
 
         let user_liking_video = ctx.accounts.authority.key();
 
         if iter.any(|&v| v == user_liking_video){
+            // 참조자를 통해서 해당 v값에 publicKet가 있는지를 확인하는 역할입니다.
+            // https://doc.rust-lang.org/rust-by-example/fn/closures/closure_examples/iter_any.html
             return Err(Errors::UserLikedVideo.into());
         }
 
