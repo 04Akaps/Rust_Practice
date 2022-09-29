@@ -8,7 +8,7 @@ pub mod util;
 
 use constant::*;
 use error::*;
-use states::{StateAccount, UserAccount};
+use states::{StateAccount, UserAccount, VideoAccount};
 use util::bump;
 
 declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
@@ -34,6 +34,8 @@ pub mod my_anchor_fourth {
         if _username.trim().is_empty() || _user_image_url.trim().is_empty() {
             // 인자값이 빈값이면 에러를 리턴
             return Err(Errors::CannotCreateUser.into());
+            // into가 들어간 이유는 들어오는 타입에 맞는 타입으로 변환해서 에러를 보내줄떄 사용 한다.
+            //https://stevedonovan.github.io/rust-gentle-intro/6-error-handling.html
         }
 
         let user = &mut ctx.accounts.user;
@@ -43,9 +45,19 @@ pub mod my_anchor_fourth {
         user.user_name = _username;
         user.user_profile_image_url = _user_image_url;
 
-        msg!("User Added");
-        sol_log_compute_units();
+        msg!("User Added"); //로그를 남기기
+        sol_log_compute_units(); // 얼마나 계산된 값이 남아 잇는지 로그를 남기는 또다른 방법
 
+        Ok(())
+    }
+
+    pub fn create_video(
+        ctx: Context<CreateVideo>,
+        _description: String,
+        _video_url: String,
+        _creator_name: String,
+        _creator_url: String,
+    ) -> Result<()> {
         Ok(())
     }
 }
@@ -91,7 +103,31 @@ pub struct CreateUser<'info> {
         seeds = [b"user".as_ref(), authority.key().as_ref()],
         bump,
         payer = authority,
-        space = 8 + std::mem::size_of::<UserAccount>()
+        space = 8 + std::mem::size_of::<UserAccount>() + USER_NAME_LENGTH 
     )]
     pub user: Account<'info, UserAccount>,
+}
+
+#[derive(Accounts)]
+pub struct CreateVideo<'info> {
+    #[account(mut)]
+    pub authority: Signer<'info>,
+    pub system_program: Program<'info, System>,
+
+    #[account(
+        mut,
+        seeds = [b"state".as_ref(), authority.key().as_ref()],
+        bump,
+        has_one = authority,
+    )]
+    pub state: Account<'info, StateAccount>,
+
+    #[account (
+        init,
+        seeds = [b"video".as_ref(), authority.key().as_ref()],
+        space = 8 + std::mem::size_of::<VideoAccount>() + VIDE_URL_LENGTH + TEXT_LENGTH,
+        bump,
+        payer = authority
+    )]
+    pub video: Account<'info, VideoAccount>,
 }
