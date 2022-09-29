@@ -44,6 +44,11 @@ pub struct StartStuffOff {
     // 처음에는 해당 코드가 내가 한 행위를 서명하는 코드인줄 알았다. --> Signer떄문에..
     // 하지만 그것과는 별개로 해당 코드는 해당 프로그램 == SmartContract에 새로운 계정을 등록하는 코드로 인식을 하게 되었다.
     // 왜냐하면 만약 트랜잭션에 서명을 하는 코드라면 아래있는 AddGif에도 들어가야 하는 코드이기 떄문에
+
+    // 수정 
+    // -> Signer는 일종의 타입이다.
+    // 계정이 트랜잭션에 사인을 했는지 거증하는 타입을 지칭한다.
+    // 그러기 떄문에 struct데이터 중 필요한 struct에만 저장을 하는 것
     #[account(mut)]
     pub user: Signer<'info>,
     pub system_program : Program<'info, System>,
