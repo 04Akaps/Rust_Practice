@@ -12,15 +12,15 @@ use solana_program::{
 
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
 pub struct GreetingAccount {
-    pub counter : u32,
+    pub counter: u32,
 }
 
 entrypoint!(process_instruction);
 
 fn process_instruction(
-    program_id : &Pubkey, // smartContact의 id로 deploy가 되면 생성이 된다.
-    accounts : &[AccountInfo], //   user의 address
-    _instruction_data : &[u8], 
+    program_id: &Pubkey,      // smartContact의 id로 deploy가 되면 생성이 된다.
+    accounts: &[AccountInfo], //   user의 address
+    _instruction_data: &[u8],
 ) -> ProgramResult {
     msg!("hellow world rust program entrypoint");
 
@@ -32,19 +32,19 @@ fn process_instruction(
     // AccountInfo 타입을 return 한다.
     msg!("account : {:?}", account);
 
-    if account.owner != program_id{
+    if account.owner != program_id {
         msg!("account does not have thr correct program id");
         return Err(ProgramError::IncorrectProgramId);
     }
-    
+
     msg!("account data : {:?}", account.data);
 
     msg!("account data borrow : {:?}", account.data.borrow());
     msg!("account data borrow & : {:?}", &account.data.borrow());
 
     let mut greeting_account = GreetingAccount::try_from_slice(&account.data.borrow())?;
-    
-    msg!("greeting_account : {:?}", greeting_account );
+
+    msg!("greeting_account : {:?}", greeting_account);
 
     greeting_account.counter += 1;
     greeting_account.serialize(&mut &mut account.data.borrow_mut()[..])?;
