@@ -28,10 +28,27 @@ pub mod my_anchor_third {
     }
 
     pub fn add_todo(ctx: Context<AddTodo>, _content: String) -> Result<()> {
+
+        let user_profile = &mut ctx.accounts.user_profile;
+        let todo_account = &mut ctx.accounts.user_todo;
+
+        todo_account.authority = ctx.accounts.authority.key();
+        todo_account.index = user_profile.last_todo;
+        todo_account.content = _content;
+        todo_account.marked = false;
+
+        user_profile.last_todo = user_profile.last_todo.checked_add(1).unwrap();
+
+        user_profile.todo_count = user_profile.todo_count.checked_add(1).unwrap();
+
+        // checked_add는 일반적인 더하기와 같습니다.
+        // 하지만 overFlow를 방지하는 역할을 합니다. Solidity에서는 SafeMath랑 같은 역할을 하는 거라고 할 수 있습니다.
+        // https://docs.rs/num/latest/num/trait.CheckedAdd.html
         Ok(())
-    }
+    }=
 
     pub fn mark_todo(ctx: Context<MarkTodo>, todo_index: u8) -> Result<()> {
+
         Ok(())
     }
 
@@ -60,10 +77,39 @@ pub struct Initialize<'info> {
     pub user_profile: Box<Account<'info, UserProfile>>,
     // Box는 rust가 가지고 있는 인메모리를 말합니다.
     // -> 사실 이 부분은 잘 이해가 되지 않아서 후에 또 알아보도록 하겠습니다.
+
+    // 수정
+    // https://doc.rust-lang.org/std/boxed/struct.Box.html
+    // 힘 메모리를 가르키는 포인터 타입이라고 합니다.
+    // Box를 사용하면 절대 할당된 메모리 이상으로 사용이 안되는 특징이 있습니다.
+    // https://doc.rust-lang.org/std/boxed/index.html
 }
 
 #[derive(Accounts)]
-pub struct AddTodo {}
+pub struct AddTodo<'info> {
+    #[account(mut)]
+    pub authority : Signer<'info>,
+    pub system_program: Program<'info, System>,
+
+    #[account(
+        init,
+        seeds = [USER_TAG, authority.key().as_ref()],
+        bump, 
+        payer = authority,
+        space = 8 + std::mem::size_of::<UserProfile>()
+    )]
+    pub user_profile: Box<Account<'info, UserProfile>>,
+
+    #[account(
+        init,
+        seeds = [TODO_TAG, authority.key().as_ref()],
+        bump,
+        payer = authority,
+        space = 8 + std::mem::size_of::<TodoAccount>()
+    )]
+    pub user_todo : Box<Account<'info, TodoAccount>>,
+
+}
 
 #[derive(Accounts)]
 pub struct MarkTodo {}
