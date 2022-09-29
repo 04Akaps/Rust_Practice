@@ -59,6 +59,11 @@ pub mod my_anchor_third {
     }
 
     pub fn remove_todo(ctx: Context<RemoveTodo>, todo_index: u8) -> Result<()> {
+        let user_profile = &mut ctx.accounts.user_profile;
+        let todo_account = &mut ctx.accounts.user_todo;
+
+        user_profile.todo_count = user_profile.todo_count.checked_sub(1).unwrap();
+
         Ok(())
     }
 }
@@ -98,13 +103,18 @@ pub struct AddTodo<'info> {
     pub system_program: Program<'info, System>,
 
     #[account(
-        init,
+        mut,
         seeds = [USER_TAG, authority.key().as_ref()],
         bump, 
-        payer = authority,
-        space = 8 + std::mem::size_of::<UserProfile>()
+        has_one = authority,
     )]
     pub user_profile: Box<Account<'info, UserProfile>>,
+    // 수정해야 할 부분이 있어서 수정이 되었습니다.
+    // has_one을 통해서 저희는 데이터를 가져 옵니다.
+    // 이전에 init할 떄에는 그냥 단순히 init 및 payer를 지정하였지만
+    // init을 하게 되면 데이터가 존재하게 되기 떄문에 이후 has_one 프로퍼티를 입력해서 데이터를 끌고오면 됩니다.
+    // 만약 여기가 init 및 payer로 구성이 된다면 계속해서 새로운 address가 만들어 지게 될 것입니다.
+    // https://docs.rs/anchor-lang/0.11.0/anchor_lang/derive.Accounts.html
 
     #[account(
         init,
@@ -114,6 +124,7 @@ pub struct AddTodo<'info> {
         space = 8 + std::mem::size_of::<TodoAccount>()
     )]
     pub user_todo : Box<Account<'info, TodoAccount>>,
+    // 여기는 새로운 todo를 더해주는 곳이기 떄문에 init을 활용합니다.
 }
 
 #[derive(Accounts)]
@@ -123,16 +134,14 @@ pub struct MarkTodo<'info> {
     pub system_program: Program<'info, System>,
 
     #[account(
-        init,
+        mut,
         seeds = [TODO_TAG, authority.key().as_ref()],
         bump,
-        payer = authority,
-        space = 8 + std::mem::size_of::<TodoAccount>()
+        has_one = authority,
     )]
     pub user_todo : Box<Account<'info, TodoAccount>>,
 
     // MarkTodo구조체는 어차피 TodoAccount구조체에서 marked값만 바꾸어 주기 떄문에 추가적인 값을 작성하지 않아도 됩니다.
-
 }
 
 #[derive(Accounts)]
@@ -142,7 +151,7 @@ pub struct RemoveTodo<'info> {
     pub system_program: Program<'info, System>,
 
     #[account(
-        init,
+        mut,
         seeds = [USER_TAG, authority.key().as_ref()],
         bump, 
         payer = authority,
@@ -151,11 +160,14 @@ pub struct RemoveTodo<'info> {
     pub user_profile: Box<Account<'info, UserProfile>>,
 
     #[account(
-        init,
+        mut,
         seeds = [TODO_TAG, authority.key().as_ref()],
         bump,
-        payer = authority,
-        space = 8 + std::mem::size_of::<TodoAccount>()
+        has_one = authority,
+        close = authority,
+        //삭제하는 데이터에는 close를 사용해 줍니다.
+        // docs를 읽어보니 계정을 인스트럭트의 마지막에서 닫는다고만 설명이 나와잇는데
+        // 이러한 부분은 좀더 알아봐야 할 것 같습니다.
     )]
     pub user_todo : Box<Account<'info, TodoAccount>>,
 }
@@ -179,6 +191,6 @@ pub fn is_zero_account(account_info: &AccountInfo) -> bool {
 
 pub fn bump(seeds:&[&[u8]], program_id : &Pubkey) -> u8{
     let (_found_key, bump) = Pubkey::find_program_address(seeds, program_id);
-
+    // https://docs.rs/anchor-lang/0.13.2/anchor_lang/prelude/struct.Pubkey.html#method.find_program_address
     bump
 }
