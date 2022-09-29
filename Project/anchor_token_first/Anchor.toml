@@ -1,14 +1,14 @@
 [features]
 seeds = false
 skip-lint = false
-[programs.localnet]
-anchor_token_first = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
+[programs.devnet]
+anchor_token_first = "28EY3D7eEoz4mvg7AFfAhwmfKJBFSJ9BM3wrBbXNsoi3"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "localnet"
+cluster = "devnet"
 wallet = "/Users/yuhojin/.config/solana/id.json"
 
 [scripts]

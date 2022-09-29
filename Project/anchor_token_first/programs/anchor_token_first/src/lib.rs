@@ -6,7 +6,7 @@ use anchor_spl::token::*;
 
 // splToken타입에는 여러개가 있기 떄문에 사용할떄마다 하나씩 뜯어보겠습니다.
 
-declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
+declare_id!("28EY3D7eEoz4mvg7AFfAhwmfKJBFSJ9BM3wrBbXNsoi3");
 
 #[program]
 pub mod anchor_token_first {

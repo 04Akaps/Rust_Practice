@@ -1,0 +1,12 @@
+/Users/yuhojin/Desktop/rust_tutorial/Project/anchor_token_first/target/release/deps/yansi-34bf9e888c25c67f.rmeta: /Users/yuhojin/.cargo/registry/src/github.com-1ecc6299db9ec823/yansi-0.5.1/src/lib.rs /Users/yuhojin/.cargo/registry/src/github.com-1ecc6299db9ec823/yansi-0.5.1/src/macros.rs /Users/yuhojin/.cargo/registry/src/github.com-1ecc6299db9ec823/yansi-0.5.1/src/windows.rs /Users/yuhojin/.cargo/registry/src/github.com-1ecc6299db9ec823/yansi-0.5.1/src/paint.rs /Users/yuhojin/.cargo/registry/src/github.com-1ecc6299db9ec823/yansi-0.5.1/src/style.rs /Users/yuhojin/.cargo/registry/src/github.com-1ecc6299db9ec823/yansi-0.5.1/src/color.rs
+
+/Users/yuhojin/Desktop/rust_tutorial/Project/anchor_token_first/target/release/deps/libyansi-34bf9e888c25c67f.rlib: /Users/yuhojin/.cargo/registry/src/github.com-1ecc6299db9ec823/yansi-0.5.1/src/lib.rs /Users/yuhojin/.cargo/registry/src/github.com-1ecc6299db9ec823/yansi-0.5.1/src/macros.rs /Users/yuhojin/.cargo/registry/src/github.com-1ecc6299db9ec823/yansi-0.5.1/src/windows.rs /Users/yuhojin/.cargo/registry/src/github.com-1ecc6299db9ec823/yansi-0.5.1/src/paint.rs /Users/yuhojin/.cargo/registry/src/github.com-1ecc6299db9ec823/yansi-0.5.1/src/style.rs /Users/yuhojin/.cargo/registry/src/github.com-1ecc6299db9ec823/yansi-0.5.1/src/color.rs
+
+/Users/yuhojin/Desktop/rust_tutorial/Project/anchor_token_first/target/release/deps/yansi-34bf9e888c25c67f.d: /Users/yuhojin/.cargo/registry/src/github.com-1ecc6299db9ec823/yansi-0.5.1/src/lib.rs /Users/yuhojin/.cargo/registry/src/github.com-1ecc6299db9ec823/yansi-0.5.1/src/macros.rs /Users/yuhojin/.cargo/registry/src/github.com-1ecc6299db9ec823/yansi-0.5.1/src/windows.rs /Users/yuhojin/.cargo/registry/src/github.com-1ecc6299db9ec823/yansi-0.5.1/src/paint.rs /Users/yuhojin/.cargo/registry/src/github.com-1ecc6299db9ec823/yansi-0.5.1/src/style.rs /Users/yuhojin/.cargo/registry/src/github.com-1ecc6299db9ec823/yansi-0.5.1/src/color.rs
+
+/Users/yuhojin/.cargo/registry/src/github.com-1ecc6299db9ec823/yansi-0.5.1/src/lib.rs:
+/Users/yuhojin/.cargo/registry/src/github.com-1ecc6299db9ec823/yansi-0.5.1/src/macros.rs:
+/Users/yuhojin/.cargo/registry/src/github.com-1ecc6299db9ec823/yansi-0.5.1/src/windows.rs:
+/Users/yuhojin/.cargo/registry/src/github.com-1ecc6299db9ec823/yansi-0.5.1/src/paint.rs:
+/Users/yuhojin/.cargo/registry/src/github.com-1ecc6299db9ec823/yansi-0.5.1/src/style.rs:
+/Users/yuhojin/.cargo/registry/src/github.com-1ecc6299db9ec823/yansi-0.5.1/src/color.rs:
