@@ -45,10 +45,16 @@ pub mod my_anchor_third {
         // 하지만 overFlow를 방지하는 역할을 합니다. Solidity에서는 SafeMath랑 같은 역할을 하는 거라고 할 수 있습니다.
         // https://docs.rs/num/latest/num/trait.CheckedAdd.html
         Ok(())
-    }=
+    }
 
     pub fn mark_todo(ctx: Context<MarkTodo>, todo_index: u8) -> Result<()> {
+        let todo_account = &mut ctx.accounts.user_todo;
 
+        require!(!todo_account.marked, TodoError::AlreadyMarked);
+        // require를 통해서 해당 값을 검정을 합니다.
+        // 이전에 address즉 자신의 Todo인지를 체크 안하는 이유는 어차피 MarkTodo구조체에서 #[]값의 bump를 통해서 검증이 되기 떄문에 따로 Owner에 대한 검증이 필요 없기 떄문입니다.
+
+        todo_account.marked = true;
         Ok(())
     }
 
@@ -108,14 +114,51 @@ pub struct AddTodo<'info> {
         space = 8 + std::mem::size_of::<TodoAccount>()
     )]
     pub user_todo : Box<Account<'info, TodoAccount>>,
+}
+
+#[derive(Accounts)]
+pub struct MarkTodo<'info> {
+    #[account(mut)]
+    pub authority : Signer<'info>,
+    pub system_program: Program<'info, System>,
+
+    #[account(
+        init,
+        seeds = [TODO_TAG, authority.key().as_ref()],
+        bump,
+        payer = authority,
+        space = 8 + std::mem::size_of::<TodoAccount>()
+    )]
+    pub user_todo : Box<Account<'info, TodoAccount>>,
+
+    // MarkTodo구조체는 어차피 TodoAccount구조체에서 marked값만 바꾸어 주기 떄문에 추가적인 값을 작성하지 않아도 됩니다.
 
 }
 
 #[derive(Accounts)]
-pub struct MarkTodo {}
+pub struct RemoveTodo<'info> {
+    #[account(mut)]
+    pub authority : Signer<'info>,
+    pub system_program: Program<'info, System>,
 
-#[derive(Accounts)]
-pub struct RemoveTodo {}
+    #[account(
+        init,
+        seeds = [USER_TAG, authority.key().as_ref()],
+        bump, 
+        payer = authority,
+        space = 8 + std::mem::size_of::<UserProfile>()
+    )]
+    pub user_profile: Box<Account<'info, UserProfile>>,
+
+    #[account(
+        init,
+        seeds = [TODO_TAG, authority.key().as_ref()],
+        bump,
+        payer = authority,
+        space = 8 + std::mem::size_of::<TodoAccount>()
+    )]
+    pub user_todo : Box<Account<'info, TodoAccount>>,
+}
 
 pub fn is_zero_account(account_info: &AccountInfo) -> bool {
     // 들어오는 주소값이 zero인지 체크하는 함수
@@ -123,7 +166,6 @@ pub fn is_zero_account(account_info: &AccountInfo) -> bool {
     // AccountInfo의 data타입은 RefCel
     // 이중 borrow데이터가 의미하는 것은 wrap되어 있는 데이터를 가져오는 것을 의미한다.
     // -> https://doc.rust-lang.org/nightly/core/cell/struct.RefCell.html#method.borrow
-
     let len = account_data.len();
 
     for i in 0..len - 1 {
@@ -133,4 +175,10 @@ pub fn is_zero_account(account_info: &AccountInfo) -> bool {
     }
 
     true
+}
+
+pub fn bump(seeds:&[&[u8]], program_id : &Pubkey) -> u8{
+    let (_found_key, bump) = Pubkey::find_program_address(seeds, program_id);
+
+    bump
 }
