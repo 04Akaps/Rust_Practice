@@ -12,7 +12,7 @@ declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 pub mod anchor_token_first {
     use super::*;
 
-    pub fn mint_token(ctx: Context<MintToken>) -> Result<()> {
+    pub fn mint_token(ctx: Context<MintToken>, value: u64) -> Result<()> {
         let cpi_accounts = MintTo {
             mint: ctx.accounts.mint.to_account_info(),
             to: ctx.accounts.token_account.to_account_info(),
@@ -31,9 +31,25 @@ pub mod anchor_token_first {
         // https://docs.rs/anchor-lang/0.5.0/anchor_lang/prelude/struct.CpiContext.html
         // 이 부분은 따로 설명이 나와있지 않아.. 모르겠습니다.
 
-        token::mint_to(cpi_ctx, 10);
+        token::mint_to(cpi_ctx, value);
         // https://docs.rs/anchor-spl/0.5.0/anchor_spl/token/fn.mint_to.html
         // 동일하게 따로 설명이 없습니다..
+
+        Ok(())
+    }
+
+    pub fn transfer_token(ctx: Context<TransferToken>, value: u64) -> Result<()> {
+        let transfer_instruction = Transfer {
+            from: ctx.accounts.from.to_account_info(),
+            to: ctx.accounts.to.to_account_info(),
+            authority: ctx.accounts.from_authority.to_account_info(),
+        };
+
+        let cpi_program = ctx.accounts.token_program.to_account_info();
+
+        let cpi_ctx = CpiContext::new(cpi_program, transfer_instruction);
+
+        token::transfer(cpi_ctx, value);
 
         Ok(())
     }
@@ -90,4 +106,17 @@ pub struct MintToken<'info> {
 
     **공부하는 과정이기 떄문에 틀린점이 많을 수 있습니다..!**
     */
+}
+
+#[derive(Accounts)]
+pub struct TransferToken<'info> {
+    pub token_program: Program<'info, Token>,
+
+    #[account(mut)]
+    pub from: UncheckedAccount<'info>,
+
+    #[account(mut)]
+    pub to: AccountInfo<'info>,
+
+    pub from_authority: Signer<'info>,
 }
