@@ -15,5 +15,5 @@ pub enum Errors {
     UserLikedVideo,
 
     #[msg("Video with potentially bad content")]
-    CannotStoreVideo,
+    CannotComment,
 }

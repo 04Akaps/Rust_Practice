@@ -8,7 +8,7 @@ pub mod util;
 
 use constant::*;
 use error::*;
-use states::{StateAccount, UserAccount, VideoAccount};
+use states::{StateAccount, UserAccount, VideoAccount, CommentAccount};
 use util::bump;
 
 declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
@@ -58,6 +58,90 @@ pub mod my_anchor_fourth {
         _creator_name: String,
         _creator_url: String,
     ) -> Result<()> {
+        msg!(&_description);
+
+        if _description.trim().is_empty() || _video_url.trim().is_empty() {
+            return Err(Errors::CannotCreateVideo.into());
+        }
+
+        let state = &mut ctx.accounts.state;
+        let video = &mut ctx.accounts.video;
+
+        video.authority = ctx.accounts.authority.key();
+
+        video.description = _description;
+        video.video_url = _video_url;
+        video.creator_name = _creator_name;
+        video.creator_url = _creator_url;
+
+        video.comment_count = 0;
+        video.index = state.video_count;
+        video.creator_time = ctx.accounts.clock.unix_timestamp;
+
+        video.likes = 0;
+        video.remove = 0;
+
+        state.video_count = state.video_count + 1;
+        // state.video_count += 1;
+        // 이렇게도 작성 가능
+
+        msg!("Video Created!!");
+        sol_log_compute_units();
+        Ok(())
+    }
+
+    pub fn create_comment(
+        ctx : Context<CreateComment>,
+        _text : String,
+        _commenter_name : String,
+        _commenter_url : String,
+    ) -> Result<()> {
+
+        let video = &mut ctx.accounts.video;
+
+        if _text.trim().is_empty() || _commenter_name.trim().is_empty()|| video.remove <= -500 {
+            return Err(Errors::CannotComment.into());
+        }
+
+        let comment = &mut ctx.accounts.comment;
+
+        comment.authority = ctx.accounts.authority.key();
+
+        comment.text = _text;
+        comment.commenter_name = _commenter_name;
+        comment.commenter_url = _commenter_url;
+
+        comment.index = video.comment_count;
+        comment.video_time = ctx.accounts.clock.unix_timestamp;
+
+        video.comment_count +=1;
+
+        
+        Ok(())
+    }
+
+    pub fn like_video(ctx : Context<LikeVideo> )-> Result<()> {
+        let video = &mut ctx.accounts.video;
+
+        if video.likes == NUMBER_OF_ALLOWED_LIKES {
+            return Err(Errors::ReachedMaxLikes.into());
+        }
+
+        if video.remove == -500{
+            return Err(Errors::CannotComment.into());
+        }
+
+        let mut iter = video.people_who_liked.iter();
+
+        let user_liking_video = ctx.accounts.authority.key();
+
+        if iter.any(|&v| v == user_liking_video){
+            return Err(Errors::UserLikedVideo.into());
+        }
+
+        video.likes += 1;
+        video.people_who_liked.push(user_liking_video);
+
         Ok(())
     }
 }
@@ -128,6 +212,50 @@ pub struct CreateVideo<'info> {
         space = 8 + std::mem::size_of::<VideoAccount>() + VIDE_URL_LENGTH + TEXT_LENGTH,
         bump,
         payer = authority
+    )]
+    pub video: Account<'info, VideoAccount>,
+
+    pub clock : Sysvar<'info, Clock>
+}
+
+#[derive(Accounts)]
+pub struct CreateComment<'info> {
+    #[account(mut)]
+    pub authority: Signer<'info>,
+    pub system_program: Program<'info, System>,
+
+    #[account (
+        init,
+        seeds = [b"comment".as_ref(), authority.key().as_ref()],
+        space = 8 + std::mem::size_of::<CommentAccount>(),
+        bump,
+        payer = authority
+    )]
+    pub comment: Account<'info, CommentAccount>,
+
+    #[account (
+        mut,
+        seeds = [b"video".as_ref(), authority.key().as_ref()],
+        bump,
+        has_one = authority
+    )]
+    pub video: Account<'info, VideoAccount>,
+
+    pub clock : Sysvar<'info, Clock>
+}
+
+#[derive(Accounts)]
+pub struct LikeVideo<'info> {
+    #[account(mut)]
+    pub authority: Signer<'info>,
+    pub system_program: Program<'info, System>,
+
+
+    #[account (
+        mut,
+        seeds = [b"video".as_ref(), authority.key().as_ref()],
+        bump,
+        has_one = authority
     )]
     pub video: Account<'info, VideoAccount>,
 }
