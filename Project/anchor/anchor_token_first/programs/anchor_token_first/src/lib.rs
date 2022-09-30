@@ -9,7 +9,7 @@ use anchor_spl::token::*;
 declare_id!("28EY3D7eEoz4mvg7AFfAhwmfKJBFSJ9BM3wrBbXNsoi3");
 
 #[program]
-pub mod anchor_token_first {
+pub mod spl_token_program {
     use super::*;
 
     pub fn mint_token(ctx: Context<MintToken>, value: u64) -> Result<()> {
@@ -31,7 +31,7 @@ pub mod anchor_token_first {
         // https://docs.rs/anchor-lang/0.5.0/anchor_lang/prelude/struct.CpiContext.html
         // 이 부분은 따로 설명이 나와있지 않아.. 모르겠습니다.
 
-        token::mint_to(cpi_ctx, value);
+        token::mint_to(cpi_ctx, value)?;
         // https://docs.rs/anchor-spl/0.5.0/anchor_spl/token/fn.mint_to.html
         // 동일하게 따로 설명이 없습니다..
 
@@ -49,7 +49,7 @@ pub mod anchor_token_first {
 
         let cpi_ctx = CpiContext::new(cpi_program, transfer_instruction);
 
-        token::transfer(cpi_ctx, value);
+        token::transfer(cpi_ctx, value)?;
 
         Ok(())
     }

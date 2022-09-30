@@ -2,7 +2,7 @@
 seeds = false
 skip-lint = false
 [programs.devnet]
-anchor_token_first = "28EY3D7eEoz4mvg7AFfAhwmfKJBFSJ9BM3wrBbXNsoi3"
+spl_token_program = "28EY3D7eEoz4mvg7AFfAhwmfKJBFSJ9BM3wrBbXNsoi3"
 
 [registry]
 url = "https://api.apr.dev"
