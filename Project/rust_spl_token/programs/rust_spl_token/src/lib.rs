@@ -17,7 +17,6 @@ pub mod rust_spl_token {
 
         // CpiContext에 대한 내용은 너무 빈약하기 떄문에 후에 알아보도록..
         // https://docs.rs/anchor-spl/latest/anchor_spl/token/fn.transfer.html
-
         Ok(())
     }
 

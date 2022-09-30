@@ -11,6 +11,9 @@ use errors::*;
 
 declare_id!("Fi6agP72G3qHHidMNTsNpMrqv4DgqJGQr1iEDUrYuTiV");
 
+// https://docs.rs/anchor-spl/0.9.0/anchor_spl/token/index.html
+// -> 참고한 docs : 있는 struct, function을 일단 모두 타입만 맞춰서 구현
+
 #[program]
 pub mod anchor_spl_token {
     use super::*;
