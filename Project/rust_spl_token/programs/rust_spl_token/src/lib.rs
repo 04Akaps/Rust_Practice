@@ -2,14 +2,14 @@ use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Burn, MintTo, SetAuthority, Transfer};
 // https://docs.rs/anchor-spl/latest/anchor_spl/token/index.html
 
-declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
+declare_id!("HpdcUmYT7t2tRJYyJeh6CfcTYxp3amzptCiGnzxz4ViX");
 
 #[program]
 pub mod rust_spl_token {
     use super::*;
 
     pub fn transfer(ctx: Context<TransferStruct>, amount: u64) -> Result<()> {
-        token::transfer(ctx.accounts.into(), amount);
+        token::transfer(ctx.accounts.into(), amount)?;
         // transfer는 CpiContext를 인자로 받는다.
         // 이떄 into는 해당 값으로 변경해 주는 것으로 예를들면 이렇게 사용이 된다.
         // ley my_str  "hello";
@@ -22,13 +22,13 @@ pub mod rust_spl_token {
     }
 
     pub fn mint_to(ctx: Context<MintToStruct>, amount: u64) -> Result<()> {
-        token::mint_to(ctx.accounts.into(), amount);
+        token::mint_to(ctx.accounts.into(), amount)?;
 
         Ok(())
     }
 
     pub fn burn(ctx: Context<BurnStruct>, amount: u64) -> Result<()> {
-        token::burn(ctx.accounts.into(), amount);
+        token::burn(ctx.accounts.into(), amount)?;
 
         Ok(())
     }
@@ -42,7 +42,7 @@ pub mod rust_spl_token {
             ctx.accounts.into(),
             authority_type.into(),
             Some(new_authority),
-        );
+        )?;
 
         Ok(())
     }
@@ -56,9 +56,12 @@ pub enum AuthorityType {
     CloseAccount,  // 토큰 계정을 잠글 권한
 }
 
+// solana에 있는 모든 것들은 계정으로취급이 딥니다.
+// 그래서 우리는 struct를 만들어서 이를 계정으로 만들어 줍니다 -> #[derive(Acounts)]가 이러한 역할을 합니다.
+
 #[derive(Accounts)]
 pub struct TransferStruct<'info> {
-    #[account(signer)]
+    #[account(signer)] // 말그대로 Signer을 말합니다.
     pub authority: AccountInfo<'info>,
 
     #[account(mut)]
@@ -112,6 +115,8 @@ pub struct SetAuthorityStruct<'info> {
 // **for create CpiContext **
 
 // CpiContext를 만들고 해당 값을 함수를 실행할 떄 사용합니다.
+// Cpi컨텍스트를 만드는 이유는 다른 프로그램에서 함수를 실행할 떄 사용되기 위해서 작성을 합니다.
+// -> 문서를 찾아봤지만 도저히 모르겠습니다.. 아직까지는..
 
 impl<'a, 'b, 'c, 'info> From<&mut TransferStruct<'info>>
     for CpiContext<'a, 'b, 'c, 'info, Transfer<'info>>
