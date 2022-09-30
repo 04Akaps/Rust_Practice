@@ -1,8 +1,8 @@
 use anchor_lang::prelude::*;
 use anchor_spl::token::{
     self, approve, burn, close_account, freeze_account, initialize_account, initialize_mint,
-    mint_to, revoke, set_authority, transfer, Approve, Burn, Mint, MintTo, Token, TokenAccount,
-    Transfer,
+    mint_to, revoke, set_authority, transfer, Approve, Burn, InitializeAccount, Mint, MintTo,
+    Token, TokenAccount, Transfer,
 };
 
 pub mod errors;
@@ -56,13 +56,13 @@ pub mod anchor_spl_token {
         Ok(())
     }
 
-    pub fn set_authority(ctx: Context<AuthorityStruct>) -> Result<()> {
-        Ok(())
-    }
-
-    // pub fn initialize_account(ctx: Context<InitializeAccount>) -> Result<()> {
+    // pub fn set_authority(ctx: Context<AuthorityStruct>) -> Result<()> {
     //     Ok(())
     // }
+
+    pub fn initialize_account(ctx: Context<InitializeStruct>) -> Result<()> {
+        Ok(())
+    }
 }
 
 #[derive(Accounts)]
@@ -119,7 +119,7 @@ pub struct ApproveStruct<'info> {
 }
 
 #[derive(Accounts)]
-pub struct AuthorityStruct<'info> {
+pub struct InitializeStruct<'info> {
     // 의문점은 mint함수에 대한 owner권한을 어떻게 설정하냐가 의문점
     pub sender: Signer<'info>,
 
@@ -132,6 +132,21 @@ pub struct AuthorityStruct<'info> {
     pub mint: Account<'info, Mint>,
     pub token_program: Program<'info, Token>,
 }
+
+// #[derive(Accounts)]
+// pub struct AuthorityStruct<'info> {
+//     // 의문점은 mint함수에 대한 owner권한을 어떻게 설정하냐가 의문점
+//     pub sender: Signer<'info>,
+
+//     #[account(mut)]
+//     pub sender_token: Account<'info, TokenAccount>, // mint를 받을 user의 주소로 인식
+
+//     #[account(mut)]
+//     pub receiver_token: Account<'info, TokenAccount>,
+
+//     pub mint: Account<'info, Mint>,
+//     pub token_program: Program<'info, Token>,
+// }
 
 impl<'info> MintStruct<'info> {
     fn mint_ctx(&self) -> CpiContext<'_, '_, '_, 'info, MintTo<'info>> {
@@ -184,3 +199,27 @@ impl<'info> ApproveStruct<'info> {
         )
     }
 }
+
+impl<'info> InitializeStruct<'info> {
+    fn initialize_account_ctx(&self) -> CpiContext<'_, '_, '_, 'info, InitializeAccount<'info>> {
+        CpiContext::new(
+            self.token_program.to_account_info(),
+            InitializeAccount {
+                account: self.sender.to_account_info(),
+                mint: self.mint.to_account_info(),
+                authority: self.sender.to_account_info(),
+                rent: self.sender.to_account_info(),
+                // 공식문세어는 rent라는 필드는 없는데... 일단 없다고 계속 에러가 뜨기 떄문에 대충 값을 집어 넣음
+            },
+        )
+    }
+}
+
+// impl<'info> AuthorityStruct<'info> {
+//     fn setauthority_ctx(&self) -> CpiContext<'_, '_, '_, 'info, SetAuthority<'info>> {
+//         CpiContext::new(self.token_program.to_account_info(), SetAuthority {
+//             current_authority : ,
+//             account_or_mint ,
+//         })
+//     }
+// }
