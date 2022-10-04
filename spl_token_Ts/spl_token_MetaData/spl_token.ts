@@ -6,7 +6,8 @@ import {
     Keypair,
     SystemProgram,
     LAMPORTS_PER_SOL,
-    PublicKey
+    PublicKey,
+    sendAndConfirmTransaction
 }  from "@solana/web3.js"
 
 // https://solana-labs.github.io/solana-web3.js/
@@ -35,6 +36,8 @@ const init = async () =>{
     
     console.log("")
 
+    console.log("created Wallet Public Key is : ",fromWallet.publicKey.toBase58())
+
     let fromAirdropSignature = await connection.requestAirdrop(
         fromWallet.publicKey,
         LAMPORTS_PER_SOL
@@ -50,13 +53,10 @@ const init = async () =>{
         8, // decimals
     );
 
-    console.log(`mint: ${mintPubkey.toBase58()}`);
+    console.log(`Token Contract Address : ${mintPubkey.toBase58()}`);
 
     const mint = new PublicKey(mintPubkey);
-        // 새로운 publicket 객체를 만들어 줍니다.
-
-        console.log(mint.toBase58())
-        // token으로 뜬다
+    // 새로운 publicket 객체를 만들어 줍니다.
 
     const seed1 = Buffer.from(anchor.utils.bytes.utf8.encode("metadata"));
     const seed2 = Buffer.from(mpl.PROGRAM_ID.toBytes());
@@ -81,8 +81,8 @@ const init = async () =>{
     }
 
     const metadata = {
-        name : "my Test Token For Hojin",
-        symbol : "EZ",
+        name : "Love Me Funk",
+        symbol : "USD",
         uri : "https://images.deepai.org/machine-learning-models/ca6bd68b90a64e75b2e195434bab73d3/biggan_demo_copy.jpg",
         sellerFeeBasisPoints : 0,
         creators : null, 
@@ -121,10 +121,11 @@ const init = async () =>{
     const ix = mpl.createCreateMetadataAccountV2Instruction(accounts, args);
 
 
+    const tx = new anchor.web3.Transaction();
+    tx.add(ix);
 
-      // 만든 토큰의 이름이랑 이미지를 설정하고 싶기 떄문에 공부 중
-    
-
+    const txid = await sendAndConfirmTransaction(connection, tx, [fromWallet])
+    console.log(txid)
 
 
     
