@@ -202,7 +202,7 @@ const init = async () =>{
         // programId?: PublicKey): Promise<TransactionSignature>;
     // )
 
-
+    console.log("mint hash is : ", txhash)
 }
 
 init()
