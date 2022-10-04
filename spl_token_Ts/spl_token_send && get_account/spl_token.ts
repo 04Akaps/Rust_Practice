@@ -7,7 +7,8 @@ import {
     SystemProgram,
     LAMPORTS_PER_SOL,
     PublicKey,
-    sendAndConfirmTransaction
+    sendAndConfirmTransaction,
+    Transaction
 }  from "@solana/web3.js"
 
 // https://solana-labs.github.io/solana-web3.js/
@@ -18,6 +19,9 @@ import { createInitializeMintInstruction,
     MINT_SIZE,
     getMinimumBalanceForRentExemptMint,
     getAssociatedTokenAddress,
+    createAssociatedTokenAccount,
+    getAccount,
+    createAssociatedTokenAccountInstruction,
     createMint} from "@solana/spl-token"
 // https://solana-labs.github.io/solana-program-library/token/js/index.html
 
@@ -125,11 +129,25 @@ const init = async () =>{
     const tx = new anchor.web3.Transaction();
     tx.add(ix);
 
-    const txid = await sendAndConfirmTransaction(connection, tx, [fromWallet])
-    console.log(txid)
+    await sendAndConfirmTransaction(connection, tx, [fromWallet])
 
-    
-    
+    // let tokenAccount = await getAccount(connection, mint);
+
+    // console.log(tokenAccount)
+
+
+    let ata = await createAssociatedTokenAccount(
+        connection,
+        fromWallet,
+        mint,
+        fromWallet.publicKey
+    )
+    // associated Token Account가 만들어 진다.
+
+    let tokenAccount = await getAccount(connection, ata);
+    // docs가 잘못되었습니다.
+    // 해당 값에 들어가는 인자는 Token contract가 아니라 Token Contract에 연관된 TokenAssociatedAccount가 들어가야 합니다.
+
 }
 
 init()
