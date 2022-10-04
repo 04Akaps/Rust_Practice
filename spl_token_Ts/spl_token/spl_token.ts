@@ -1,54 +1,128 @@
 // ts-node send_spl_token.ts
 
-const {
+import {
     clusterApiUrl,
     Connection,
     Keypair,
-    transaction,
     SystemProgram,
     LAMPORTS_PER_SOL,
-} = require("@solana/web3.js");
+    PublicKey
+}  from "@solana/web3.js"
 
 // https://solana-labs.github.io/solana-web3.js/
 
-const  {
-    createInitializeMintInstruction,
+
+import { createInitializeMintInstruction,
     TOKEN_PROGRAM_ID,
     MINT_SIZE,
     getMinimumBalanceForRentExemptMint,
-    createMint,
-}  = require("@solana/spl-token");
+    createMint} from "@solana/spl-token"
 // https://solana-labs.github.io/solana-program-library/token/js/index.html
 
-const bs58 = require("bs58");
+import bs58 from "bs58"
 
-
-// [168,143,20,100,123,221,21,179,250,115,88,102,185,163,95,68,220,240,164,33,81,219,228,32,230,148,248,242,81,66,141,15,192,188,222,195,54,31,59,227,235,79,109,149,202,41,216,173,205,218,117,228,34,46,63,43,26,144,218,152,175,197,132,55]
-
-// DyNKK2N8HQVYfzFc6vQstFAuwabTtkgNewVG1GAQiuMg
+import * as mpl from "@metaplex-foundation/mpl-token-metadata";
+import * as anchor from "@project-serum/anchor";
 
 const init = async () =>{
-   
     const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
 
     let fromWallet = Keypair.generate();
+
+    console.log("")
+
+    console.log("created Wallet is : ",fromWallet)
     
-      let fromAirdropSignature = await connection.requestAirdrop(
+    console.log("")
+
+    let fromAirdropSignature = await connection.requestAirdrop(
         fromWallet.publicKey,
         LAMPORTS_PER_SOL
-      );
+    );
 
-      await connection.confirmTransaction(fromAirdropSignature);
+    await connection.confirmTransaction(fromAirdropSignature);
 
     let mintPubkey = await createMint(
         connection, // conneciton
         fromWallet, // fee payer
         fromWallet.publicKey, // mint authority
         fromWallet.publicKey, // freeze authority (you can use `null` to disable it. when you disable it, you can't turn it on again)
-        8 // decimals
-      );
+        8, // decimals
+    );
 
-      console.log(`mint: ${mintPubkey.toBase58()}`);
+    console.log(`mint: ${mintPubkey.toBase58()}`);
+
+    const mint = new PublicKey(mintPubkey);
+        // 새로운 publicket 객체를 만들어 줍니다.
+
+        console.log(mint.toBase58())
+        // token으로 뜬다
+
+    const seed1 = Buffer.from(anchor.utils.bytes.utf8.encode("metadata"));
+    const seed2 = Buffer.from(mpl.PROGRAM_ID.toBytes());
+    const seed3 = Buffer.from(mint.toBytes());
+
+
+    const [metadataPDA, _bump] = PublicKey.findProgramAddressSync([seed1, seed2, seed3], mpl.PROGRAM_ID);
+
+    // console.log(metadataPDA.toBase58())
+    // Account로 뜬다
+
+    // https://solana-labs.github.io/solana-web3.js/classes/PublicKey.html#findProgramAddressSync
+    // docs를 읽어보면 시드와 결합하면 유효한 프로그램 주소가 될떄까지 반복하고 값을 내놓는다 라고 적혀잇는데
+    // 아직은 잘 이해가 되지가 않습니다..
+
+    const accounts = {
+        metadata :metadataPDA,
+        mint : mint,
+        mintAuthority : fromWallet.publicKey,
+        payer : fromWallet.publicKey,
+        updateAuthority : fromWallet.publicKey,
+    }
+
+    const metadata = {
+        name : "my Test Token For Hojin",
+        symbol : "EZ",
+        uri : "https://images.deepai.org/machine-learning-models/ca6bd68b90a64e75b2e195434bab73d3/biggan_demo_copy.jpg",
+        sellerFeeBasisPoints : 0,
+        creators : null, 
+        collection : null,
+        uses : null
+    }
+
+//     export declare type DataV2 = {
+//         name: string;
+//         symbol: string;
+//         uri: string;
+//         sellerFeeBasisPoints: number;
+//         creators: beet.COption<Creator[]>;
+//         collection: beet.COption<Collection>;
+//         uses: beet.COption<Uses>;
+//     };
+
+//     export declare type CreateMetadataAccountArgsV2 = {
+//         data: DataV2;
+//         isMutable: boolean;
+//     };
+
+
+// export declare function createCreateMetadataAccountV2Instruction(accounts: CreateMetadataAccountV2InstructionAccounts, args: CreateMetadataAccountV2InstructionArgs, programId?: web3.PublicKey): web3.TransactionInstruction;
+
+// 타입이 맞지 않기 떄문에 모듈을 뜯어 가면서 타입을 대조 및 오타 수정
+
+
+    const args = {
+        createMetadataAccountArgsV2 : {
+            data  : metadata,
+            isMutable : true
+        }
+    }
+
+    const ix = mpl.createCreateMetadataAccountV2Instruction(accounts, args);
+
+
+
+      // 만든 토큰의 이름이랑 이미지를 설정하고 싶기 떄문에 공부 중
     
 
 
