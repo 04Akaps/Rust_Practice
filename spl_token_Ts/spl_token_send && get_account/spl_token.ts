@@ -4,24 +4,18 @@ import {
     clusterApiUrl,
     Connection,
     Keypair,
-    SystemProgram,
     LAMPORTS_PER_SOL,
     PublicKey,
-    sendAndConfirmTransaction,
-    Transaction
+    sendAndConfirmTransaction
 }  from "@solana/web3.js"
 
 // https://solana-labs.github.io/solana-web3.js/
 
 
-import { createInitializeMintInstruction,
-    TOKEN_PROGRAM_ID,
-    MINT_SIZE,
-    getMinimumBalanceForRentExemptMint,
-    getAssociatedTokenAddress,
+import { 
     createAssociatedTokenAccount,
     getAccount,
-    createAssociatedTokenAccountInstruction,
+    mintToChecked,
     createMint} from "@solana/spl-token"
 // https://solana-labs.github.io/solana-program-library/token/js/index.html
 
@@ -35,10 +29,16 @@ const init = async () =>{
 
     let fromWallet = Keypair.generate();
 
+    let toWallet = Keypair.generate();
+
     console.log("")
 
     console.log("created Wallet is : ",fromWallet)
     
+    console.log("")
+
+    console.log("created ToWallet is : ",toWallet);
+
     console.log("")
 
     console.log("created Wallet Public Key is : ",fromWallet.publicKey.toBase58())
@@ -50,6 +50,11 @@ const init = async () =>{
 
     await connection.confirmTransaction(fromAirdropSignature);
 
+
+    console.log("") 
+    console.log(" ------------ create Token ------------ ")
+    console.log("")
+
     let mintPubkey = await createMint(
         connection, // conneciton
         fromWallet, // fee payer
@@ -59,6 +64,10 @@ const init = async () =>{
     );
 
     console.log(`Token Contract Address : ${mintPubkey.toBase58()}`);
+
+    console.log("") 
+    console.log(" ------------ create Token MetaData ------------ ")
+    console.log("")
 
     const mint = new PublicKey(mintPubkey);
     // 새로운 publicket 객체를 만들어 줍니다.
@@ -131,11 +140,17 @@ const init = async () =>{
 
     await sendAndConfirmTransaction(connection, tx, [fromWallet])
 
-    // let tokenAccount = await getAccount(connection, mint);
+    console.log("") 
+    console.log(" ------------ create AssociatedTokenAddress ------------ ")
+    console.log("")
 
-    // console.log(tokenAccount)
-
-
+    // let ata2 = await createAssociatedTokenAccount(
+    //     connection,
+    //     toWallet,
+    //     mint,
+    //     toWallet.publicKey
+    // )
+    
     let ata = await createAssociatedTokenAccount(
         connection,
         fromWallet,
@@ -144,9 +159,49 @@ const init = async () =>{
     )
     // associated Token Account가 만들어 진다.
 
+    console.log(ata.toBase58())
+
+    console.log("") 
+    console.log(" ------------ check AssociatedTokenAddress ------------ ")
+    console.log("")
+
     let tokenAccount = await getAccount(connection, ata);
     // docs가 잘못되었습니다.
     // 해당 값에 들어가는 인자는 Token contract가 아니라 Token Contract에 연관된 TokenAssociatedAccount가 들어가야 합니다.
+    console.log(tokenAccount)
+
+    let tokenBalance = await connection.getTokenAccountBalance(ata);
+
+    console.log(tokenBalance)
+
+    console.log("") 
+    console.log(" ------------ Mint Token ------------ ")
+    console.log("")
+
+
+    let txhash = await mintToChecked(
+        connection, // connection
+        fromWallet, // fee payer
+        mint, // mint
+        ata, // receiver (should be token account)
+        fromWallet, // mint authority wallet
+        1e8, // amount
+        8 //decimals
+    )
+    
+    // export declare function mintToChecked(
+        // connection: Connection, 
+        // payer: Signer, 
+        // mint: PublicKey, 
+        // destination: PublicKey, 
+        // authority: Signer | PublicKey, 
+        // amount: number | bigint, 
+        // decimals: number, 
+        // multiSigners?: Signer[], 
+        // confirmOptions?: ConfirmOptions, 
+        // programId?: PublicKey): Promise<TransactionSignature>;
+    // )
+
 
 }
 
