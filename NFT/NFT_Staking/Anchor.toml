@@ -1,14 +1,14 @@
 [features]
 seeds = false
 skip-lint = false
-[programs.localnet]
-nft_staking = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
+[programs.devnet]
+nft_staking = "SDKLfzHbNUiHkrnppAFj3awpY5aqYgs6wLkqh4F6JZD"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "localnet"
+cluster = "devnet"
 wallet = "/Users/yuhojin/.config/solana/id.json"
 
 [scripts]
