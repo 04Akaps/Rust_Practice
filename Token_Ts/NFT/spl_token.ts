@@ -51,6 +51,7 @@ const init = async () => {
                 authority : fromWallet
             }
         ],
+        collection : beforeTokenAddress // 메타데이터에 추가되는 항목이로 collection으로 들어갑니다.
     });
 
 
