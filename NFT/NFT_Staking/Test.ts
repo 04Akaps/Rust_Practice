@@ -46,6 +46,12 @@ const init  = async () =>{
 
     const newTestAccount = web3.Keypair.generate();
 
+    // const beforeData = await program.account.myAccount.fetch(newTestAccount.publicKey)
+
+    // console.log("beforeData : ",beforeData)
+    // -> 에러가 뜬다.
+    // -> 왜냐하면 initialize가 되지 않아서 새로운 account가 없음
+
 
     const tx = await program.rpc.initialize(new BN(3), {
       accounts : {
