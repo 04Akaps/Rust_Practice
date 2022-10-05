@@ -14,7 +14,7 @@ import { Provider, Program, setProvider, AnchorProvider, Wallet, web3, BN,} from
 const { SystemProgram } = web3;
 // https://coral-xyz.github.io/anchor/ts/index.html#setProvider
 
-// DyNKK2N8HQVYfzFc6vQstFAuwabTtkgNewVG1GAQiuMg
+// 4nGKUAfc5ZB8hKZ4dmVZ4wViRfsJ1x4wPgvMspKKHZQC
 
 const programId = "BPrW9qJNafGsKTWraRecHapUXxQs8hbrR6VMDoLicfbL";
 const id1 = require("./target/idl/basic_1.json")
@@ -47,16 +47,22 @@ const init  = async () =>{
     const newTestAccount = web3.Keypair.generate();
 
 
-    // const tx = await program.rpc.initialize(new BN(3), {
-    //   accounts : {
-    //     myAccount : newTestAccount.publicKey,
-    //     user : anchorWallet.payer.publicKey,
-    //     systemProgram : SystemProgram.programId.toBase58()
-    //   },
-    //   signers : [newTestAccount]
-    // })
+    const tx = await program.rpc.initialize(new BN(3), {
+      accounts : {
+        myAccount : newTestAccount.publicKey,
+        user : anchorWallet.payer.publicKey,
+        systemProgram : SystemProgram.programId.toBase58()
+      },
+      signers : [newTestAccount]
+    })
 
-    // console.log(tx)
+    console.log(tx)
+
+
+    const afterData = await program.account.myAccount.fetch(newTestAccount.publicKey)
+
+    console.log("afterData : ",afterData)
+
 
 }
 
