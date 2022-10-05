@@ -1,0 +1,14 @@
+{
+    "name" : "testset #1",
+    "symbol" : "DK",
+    "description" : "testesttttt",
+    "image" : "https://arweave.net/M5oKnjLYIKPS68QDQr-5gG6DzFh5fHTkGk-VAZw8H90",
+    "attributes" : [
+        {
+            "trait_type" : "Backgound",
+            "value" : "white"
+        }
+    ],
+    "seller_fee_basis_points" : 1000
+}
+
