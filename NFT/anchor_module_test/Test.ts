@@ -1,4 +1,4 @@
-import { Metaplex, keypairIdentity } from "@metaplex-foundation/js";
+import { Metaplex, keypairIdentity, CandyMachineAddItemConstraintsViolatedError } from "@metaplex-foundation/js";
 // https://www.npmjs.com/package/@metaplex-foundation/js
 
 import {
@@ -14,7 +14,6 @@ import { Provider, Program, setProvider, AnchorProvider, Wallet, web3, BN,} from
 const { SystemProgram } = web3;
 // https://coral-xyz.github.io/anchor/ts/index.html#setProvider
 
-// 4nGKUAfc5ZB8hKZ4dmVZ4wViRfsJ1x4wPgvMspKKHZQC
 
 const programId = "BPrW9qJNafGsKTWraRecHapUXxQs8hbrR6VMDoLicfbL";
 const id1 = require("./target/idl/basic_1.json")
@@ -26,7 +25,7 @@ const init  = async () =>{
 
     console.log("")
 
-    console.log("created Wallet is : ",fromWallet.publicKey.toBase58())
+    console.log("created Wallet is : ",fromWallet.publicKey)
     
     console.log("")
 
@@ -46,6 +45,8 @@ const init  = async () =>{
 
     const newTestAccount = web3.Keypair.generate();
 
+      console.log("created Account : ",newTestAccount.publicKey)
+
     // const beforeData = await program.account.myAccount.fetch(newTestAccount.publicKey)
 
     // console.log("beforeData : ",beforeData)
@@ -53,7 +54,7 @@ const init  = async () =>{
     // -> 왜냐하면 initialize가 되지 않아서 새로운 account가 없음
 
 
-    const tx = await program.rpc.initialize(new BN(3), {
+    await program.rpc.initialize(new BN(3), {
       accounts : {
         myAccount : newTestAccount.publicKey,
         user : anchorWallet.payer.publicKey,
@@ -62,13 +63,16 @@ const init  = async () =>{
       signers : [newTestAccount]
     })
 
-    console.log(tx)
-
-
     const afterData = await program.account.myAccount.fetch(newTestAccount.publicKey)
 
-    console.log("afterData : ",afterData)
+    // 새로만들어진 key값을 통해서 조회가 가능한것은 알겟는데 이러면 트랜잭션을 날릴떄마다 새로운 값을 조회해야 하나...??
 
+    const newTestAccoun2 = web3.Keypair.generate();
+
+    console.log(program.account)
+
+
+    console.log("afterData : ",afterData)
 
 }
 
