@@ -2,7 +2,7 @@
 seeds = false
 skip-lint = false
 [programs.devnet]
-basic_1 = "BPrW9qJNafGsKTWraRecHapUXxQs8hbrR6VMDoLicfbL"
+nft_staking = "5YJa8BpFJPQuAh29pGgo4NYfYRqQ66m5QHj2p4o5SF1r"
 
 [registry]
 url = "https://api.apr.dev"

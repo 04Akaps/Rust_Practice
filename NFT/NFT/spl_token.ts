@@ -31,7 +31,6 @@ const init = async () => {
     const metaplex = new Metaplex(connection);
     metaplex.use(keypairIdentity(fromWallet));
 
-
     const beforeTokenAddress = new PublicKey("JAuDcoyGXdwSwjGQDBRq8NHuua6JCV3y7LDA7GDGC6jq");
 
     const mintNFTResponse = metaplex.nfts().create({

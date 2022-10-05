@@ -1,5 +1,3 @@
-import { Metaplex, keypairIdentity, CandyMachineAddItemConstraintsViolatedError } from "@metaplex-foundation/js";
-// https://www.npmjs.com/package/@metaplex-foundation/js
 
 import {
   Connection,
@@ -56,14 +54,14 @@ const init  = async () =>{
 
     await program.rpc.initialize(new BN(3), {
       accounts : {
-        myAccount : newTestAccount.publicKey,
+        myAccount : fromWallet.publicKey,
         user : anchorWallet.payer.publicKey,
         systemProgram : SystemProgram.programId.toBase58()
       },
-      signers : [newTestAccount]
+      signers : [fromWallet]
     })
 
-    const afterData = await program.account.myAccount.fetch(newTestAccount.publicKey)
+    const afterData = await program.account.myAccount.fetch(fromWallet.publicKey)
 
     // 새로만들어진 key값을 통해서 조회가 가능한것은 알겟는데 이러면 트랜잭션을 날릴떄마다 새로운 값을 조회해야 하나...??
 

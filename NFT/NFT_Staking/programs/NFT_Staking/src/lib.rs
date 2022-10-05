@@ -4,40 +4,37 @@ use spl_token::instruction::AuthorityType;
 
 // https://github.com/Brent-Jeremy/solana-nft-staking
 
-declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
+declare_id!("5YJa8BpFJPQuAh29pGgo4NYfYRqQ66m5QHj2p4o5SF1r");
 
 const TRANSIENT_NFT_STAKE_SEED_PREFIX: &[u8] = b"transient";
 pub const METAPLEX_PROGRAM_ID: &'static str = "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s";
+// metaPlex를 통해서 mint하면 해당 값에서 mint권한이 있는 계정을 만들어 주고, 이후 그 계정에서 Mint를 진행하는 방식
+//  https://solscan.io/token/DtoUoANCQ4vws4kCXWy4qiXmWzhDVXXPX6f7bvmBWNiM?cluster=devnet
+
 pub const SYMBOL: &[u8] = b"HVORIGINS";
 
 #[program]
-pub mod NFT_Staking {
+pub mod nft_staking {
     use super::*;
-
-    pub fn initialize(ctx: Context<Initialize>, max_len: u64) -> Result<()> {
-        let store = &mut ctx.accounts.store;
-        store.is_initialized = true;
-        store.staked_count = 0;
-        store.max_items = max_len;
-        store.payer = *ctx.accounts.payer.key;
-        store.stake_list = ctx.accounts.list.key();
-        Ok(())
-    }
 
     pub fn stake_nft(ctx: Context<StakeNFT>, symbol: String) -> Result<()> {
         let metaplex_pubkey = METAPLEX_PROGRAM_ID
             .parse::<Pubkey>()
             .expect("Failed to parse Metaplex Program Id");
 
+        // metaplex의 주소를 가져온다
+
         let mint = *ctx.accounts.mint.key;
 
         let seeds = &[
-            "metadata".as_bytes(),
+            "metadata".as_bytes(), // 특정 타입을 제네릭 타입으로 변경
             metaplex_pubkey.as_ref(),
             mint.as_ref(),
         ];
 
         let (metadata_pda, _) = Pubkey::find_program_address(seeds, &metaplex_pubkey);
+        // pubKey와 u8이 resturn 된다.
+        // https://stackoverflow.com/questions/68878330/what-is-the-seeds-in-creating-account-or-finding-the-account-in-solana-and-coul
 
         if metadata_pda != *ctx.accounts.metadata.key {
             return Err(ErrorCode::NoMatchMetadata.into());
@@ -55,7 +52,9 @@ pub mod NFT_Staking {
             ],
             ctx.program_id,
         );
+
         token::set_authority(ctx.accounts.into(), AuthorityType::AccountOwner, Some(pda))?;
+
         {
             let store = &mut ctx.accounts.store;
             let list = &mut ctx.accounts.list;
@@ -69,6 +68,7 @@ pub mod NFT_Staking {
                 },
             );
         }
+
         {
             let store = &mut ctx.accounts.store;
             store.staked_count += 1;
@@ -76,79 +76,47 @@ pub mod NFT_Staking {
         Ok(())
     }
 
-    pub fn reclaim_nft(ctx: Context<ReclaimNFT>) -> Result<()> {
-        let withdrawer = *ctx.accounts.withdrawer.key;
+    pub fn check_stake_nft(ctx: Context<CheckNFT>) -> Result<()> {
+        let metaplex_pubkey = METAPLEX_PROGRAM_ID
+            .parse::<Pubkey>()
+            .expect("Failed to parse Metaplex Program Id");
+
+        msg!("{:?}", metaplex_pubkey);
+
         let mint = *ctx.accounts.mint.key;
-        let (_pda, bump_seed) = Pubkey::find_program_address(
-            &[
-                &TRANSIENT_NFT_STAKE_SEED_PREFIX[..],
-                withdrawer.as_ref(),
-                mint.as_ref(),
-            ],
-            ctx.program_id,
-        );
+
         let seeds = &[
-            &TRANSIENT_NFT_STAKE_SEED_PREFIX[..],
-            withdrawer.as_ref(),
+            "metadata".as_bytes(), // 특정 타입을 제네릭 타입으로 변경
+            metaplex_pubkey.as_ref(),
             mint.as_ref(),
-            &[bump_seed],
         ];
-        // check if possible to withdraw based on current time
-        let mut founded = None;
-        {
-            let list = &mut ctx.accounts.list;
-            founded = list
-                .items
-                .iter()
-                .position(|&x| x.owner == withdrawer && x.token_mint == mint);
 
-            if founded.is_some()
-                && ctx.accounts.clock.unix_timestamp
-                    < 30 + list.items.get(founded.unwrap()).unwrap().stake_time
-            {
-                return Err(ErrorCode::NotEnoughTime.into());
-            }
+        let (metadata_pda, _) = Pubkey::find_program_address(seeds, &metaplex_pubkey);
+        // test를 진행해 보았지만 metadata_pda는 아무런 상관이 없는 주소가 나오게 된다.
 
-            // transfer token to withdrawer and return stake account
-            token::transfer(
-                ctx.accounts
-                    .into_transfer_to_taker_context()
-                    .with_signer(&[&seeds[..]]),
-                1,
-            )?;
+        let store = &mut ctx.accounts.store;
 
-            token::set_authority(
-                ctx.accounts
-                    .into_set_authority_context()
-                    .with_signer(&[&seeds[..]]),
-                AuthorityType::AccountOwner,
-                Some(withdrawer),
-            )?;
-        }
+        store.address = metadata_pda;
 
-        {
-            // remove item
-            let list = &mut ctx.accounts.list;
-            list.items.remove(founded.unwrap());
-        }
-
-        {
-            let store = &mut ctx.accounts.store;
-            store.staked_count -= 1;
-        }
         Ok(())
     }
 }
 
 #[derive(Accounts)]
-pub struct Initialize<'info> {
-    #[account(zero)]
-    pub store: Account<'info, StakeStore>,
-    #[account(zero)]
-    pub list: Account<'info, StakeList>,
-    #[account(signer)]
-    pub payer: AccountInfo<'info>,
+pub struct CheckNFT<'info> {
+    #[account(init, payer = signer, space = 8 + 32 + 32)]
+    pub store: Account<'info, CheckStore>,
+
+    #[account(mut)]
+    pub signer: Signer<'info>,
+    pub mint: AccountInfo<'info>,
     pub system_program: Program<'info, System>,
+    pub token_program: Program<'info, Token>,
+}
+
+#[account]
+pub struct CheckStore {
+    pub address: Pubkey,
 }
 
 #[derive(Accounts)]
@@ -161,26 +129,8 @@ pub struct StakeNFT<'info> {
     pub depositor: AccountInfo<'info>,
     #[account(mut)]
     pub stake_nft: AccountInfo<'info>,
-    pub metadata: AccountInfo<'info>,
-    pub mint: AccountInfo<'info>,
-    pub clock: Sysvar<'info, Clock>,
-    pub system_program: Program<'info, System>,
-    pub token_program: Program<'info, Token>,
-}
 
-#[derive(Accounts)]
-pub struct ReclaimNFT<'info> {
-    #[account(mut)]
-    pub withdrawer: AccountInfo<'info>,
-    #[account(mut)]
-    pub store: Account<'info, StakeStore>,
-    #[account(mut)]
-    pub list: Account<'info, StakeList>,
-    #[account(mut)]
-    pub reclaim_token_account: Account<'info, TokenAccount>,
-    #[account(mut)]
-    pub pda_stake_token_account: Account<'info, TokenAccount>,
-    pub pda_account: AccountInfo<'info>,
+    pub metadata: AccountInfo<'info>,
     pub mint: AccountInfo<'info>,
     pub clock: Sysvar<'info, Clock>,
     pub system_program: Program<'info, System>,
@@ -220,27 +170,6 @@ impl<'info> From<&mut StakeNFT<'info>> for CpiContext<'_, '_, '_, 'info, SetAuth
             current_authority: accounts.depositor.clone(),
         };
         let cpi_program = accounts.token_program.to_account_info();
-        CpiContext::new(cpi_program, cpi_accounts)
-    }
-}
-
-impl<'info> ReclaimNFT<'info> {
-    fn into_transfer_to_taker_context(&self) -> CpiContext<'_, '_, '_, 'info, Transfer<'info>> {
-        let cpi_accounts = Transfer {
-            from: self.pda_stake_token_account.to_account_info().clone(),
-            to: self.reclaim_token_account.to_account_info().clone(),
-            authority: self.pda_account.clone(),
-        };
-        let cpi_program = self.token_program.to_account_info();
-        CpiContext::new(cpi_program, cpi_accounts)
-    }
-
-    fn into_set_authority_context(&self) -> CpiContext<'_, '_, '_, 'info, SetAuthority<'info>> {
-        let cpi_accounts = SetAuthority {
-            account_or_mint: self.pda_stake_token_account.to_account_info().clone(),
-            current_authority: self.pda_account.clone(),
-        };
-        let cpi_program = self.token_program.to_account_info();
         CpiContext::new(cpi_program, cpi_accounts)
     }
 }

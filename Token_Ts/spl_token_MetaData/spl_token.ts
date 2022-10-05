@@ -13,11 +13,7 @@ import {
 // https://solana-labs.github.io/solana-web3.js/
 
 
-import { createInitializeMintInstruction,
-    TOKEN_PROGRAM_ID,
-    MINT_SIZE,
-    getMinimumBalanceForRentExemptMint,
-    getAssociatedTokenAddress,
+import { 
     createMint} from "@solana/spl-token"
 // https://solana-labs.github.io/solana-program-library/token/js/index.html
 
