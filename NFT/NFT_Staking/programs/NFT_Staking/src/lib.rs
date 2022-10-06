@@ -93,10 +93,11 @@ pub mod nft_staking {
 
         let (metadata_pda, _) = Pubkey::find_program_address(seeds, &metaplex_pubkey);
         // test를 진행해 보았지만 metadata_pda는 아무런 상관이 없는 주소가 나오게 된다.
+        // 이 부분에서 막혔다...
 
         let store = &mut ctx.accounts.store;
 
-        store.address = metadata_pda;
+        store.address = ctx.accounts.into();
 
         Ok(())
     }
