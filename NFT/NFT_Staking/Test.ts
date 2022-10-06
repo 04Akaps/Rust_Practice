@@ -4,22 +4,19 @@ import {
     clusterApiUrl,
     Keypair,
     LAMPORTS_PER_SOL,
-    Transaction,
     SystemProgram,
     PublicKey,
-    sendAndConfirmTransaction
 } from "@solana/web3.js";
 
+import {  Program,  AnchorProvider, Wallet, web3} from '@project-serum/anchor'
 
-import { Provider, Program, setProvider, AnchorProvider, Wallet, web3, BN} from '@project-serum/anchor'
-
-import { TOKEN_PROGRAM_ID, createMint } from "@solana/spl-token";
+import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 
 import { Metaplex, keypairIdentity } from "@metaplex-foundation/js";
+import { utf8 } from "@project-serum/anchor/dist/cjs/utils/bytes";
 
 const programId = "5YJa8BpFJPQuAh29pGgo4NYfYRqQ66m5QHj2p4o5SF1r";
 const id1 = require("./target/idl/nft_staking.json")
-
 
 const init = async () =>{
     const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
@@ -38,6 +35,14 @@ const init = async () =>{
     );
 
     await connection.confirmTransaction(fromAirdropSignature);
+
+    console.log("")
+    console.log("")
+
+    console.log("airdrop success!!")
+
+    console.log("")
+    console.log("")
 
     const metaplex = new Metaplex(connection);
     metaplex.use(keypairIdentity(fromWallet));
@@ -64,35 +69,36 @@ const init = async () =>{
         collection : beforeTokenAddress // 메타데이터에 추가되는 항목이로 collection으로 들어갑니다.
     });
 
-
     const nft = await mintNFTResponse.run();
 
     console.log("mint Address : ",nft.mintAddress.toBase58())
 
-    // D2yH4MPakxoAZ9YJ3JRjTXdQFXzo3iDhJAcZkfLf4EDg
+    setTimeout(async () => {
+        console.log("맛좀 보자!!")
+        const anchorWallet  = new Wallet(fromWallet);
+        const provider = new AnchorProvider(connection, anchorWallet, {})
+        const program = new Program(id1 ,programId, provider)
 
-    const anchorWallet  = new Wallet(fromWallet);
-    const provider = new AnchorProvider(connection, anchorWallet, {})
-    const program = new Program(id1 ,programId, provider)
+        const [escrowPDA]  = await web3.PublicKey.findProgramAddress([
+            utf8.encode('test')
+        ], program.programId)
 
 
-    const tx = await program.rpc.checkStakeNft({
+    const tx = await program.rpc.transfer({
         accounts: {
-            store : fromWallet.publicKey,
-            signer : anchorWallet.payer.publicKey,
+            // storage : escrowPDA,
+            to : nft.mintAddress.toBase58(),
+            signer : fromWallet.publicKey,
             mint : nft.mintAddress.toBase58(),
             systemProgram : SystemProgram.programId.toBase58(),
             tokenProgram : TOKEN_PROGRAM_ID
         }
     })
 
+    console.log(tx)
+    }, 5000)
 
-    const afterData = await program.account.checkStore.fetch(fromWallet.publicKey)
-
-    console.log(afterData.address.toBase58())
-
-    // 9jvMyKScvbTHLThUqMhKTQ2EtXsjy7n1bzkBBWwkaUWx
-
+    
 }
 
 init()

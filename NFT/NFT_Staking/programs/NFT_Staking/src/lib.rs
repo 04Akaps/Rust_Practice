@@ -15,14 +15,10 @@ pub const GLOBAL_AUTHORITY_SEED: &str = "global-authority";
 pub mod nft_staking {
     use super::*;
 
-    pub fn transfer(ctx : Context<TransferStruct>) -> Result<()> {
-
+    pub fn transfer(ctx: Context<TransferStruct>) -> Result<()> {
         // 단순히 transfer만 하면 된다...?
-        let structV = ctx.accounts;
-        token::transfer(
-            structV.transfer_ctx(),
-            1
-        );
+        let struct_v = ctx.accounts;
+        token::transfer(struct_v.transfer_ctx(), 1)?;
 
         Ok(())
     }
@@ -35,19 +31,22 @@ pub mod nft_staking {
 
 #[derive(Accounts)]
 pub struct TransferStruct<'info> {
-    #[account(
-        init, 
-        payer = signer, 
-        space = 8 + 8,
-        // owner = system_program.key() // 굳이 적어주지 않아도 된다. == default값
-    )]
-    pub storage: AccountInfo<'info>,
-
+    // #[account(
+    //     init,
+    //     payer = signer,
+    //     space = 10000,
+    //     seeds = [b"test".as_ref()],
+    //     bump
+    // )]
+    // pub storage: AccountInfo<'info>,
     #[account(mut)]
     pub signer: Signer<'info>,
 
     #[account(mut)]
-    pub mint : AccountInfo<'info>, // NFT에 대한 Token Address
+    pub mint: Account<'info, TokenAccount>, // NFT에 대한 Token Address
+
+    #[account(mut)]
+    pub to: AccountInfo<'info>,
     // 더미 입니다.
     pub system_program: Program<'info, System>,
     pub token_program: Program<'info, Token>,
@@ -70,7 +69,7 @@ impl<'info> TransferStruct<'info> {
             self.token_program.to_account_info(),
             Transfer {
                 from: self.mint.to_account_info(),
-                to: self.storage.to_account_info(),
+                to: self.to.to_account_info(),
                 authority: self.signer.to_account_info(),
             },
         )
