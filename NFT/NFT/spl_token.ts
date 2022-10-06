@@ -54,9 +54,10 @@ const init = async () => {
     });
 
 
+
     const nft = await mintNFTResponse.run();
 
-    console.log(nft.mintAddress.toBase58())
+    console.log("NFT Address : ",nft.mintAddress.toBase58())
 
 
     // 94oLMWPMJ2vasqZBiU2RBTcEe6kEjz7bTBhVPTABeNAU
@@ -105,6 +106,55 @@ const init = async () => {
     //      */
     //     readonly authority?: Signer;
     // };
+
+
+    const largestAccounts = await connection.getTokenLargestAccounts(
+        new PublicKey(nft.mintAddress.toBase58())
+    );
+    // 해당 NFT에 대한 수량과 잡다한 값들이 나온다.
+    console.log("")
+    console.log("")
+
+    const largestAccountInfo = await connection.getParsedAccountInfo(
+        largestAccounts.value[0].address
+    );
+
+    console.log("Token Program : ",largestAccountInfo.value?.owner.toBase58())
+    // NFT에 대한 OwnerProgram == Token program이 나온다.
+
+    console.log("NFT Owner : ",largestAccountInfo.value?.data)
+    // 이 부분을 확인하면 NFT Owner항목이 보이게 된다.
+
+    console.log("")
+    console.log("")
+
+    // 계정이 가지고 있는 전체 NFT가져오기
+
+    const owner = new PublicKey(fromWallet.publicKey.toBase58())
+
+    const allNFTs = metaplex.nfts().findAllByOwner({owner : owner});
+    // docs에서는 이렇게 끝낱지만 사실상 타입이 조금 다름
+    // -> 그러기 떄문에 이렇게 수정
+
+    // export declare type FindNftsByOwnerInput = {
+    //     /** The address of the owner. */
+    //     owner: PublicKey;
+    //     /** The level of commitment desired when querying the blockchain. */
+    //     commitment?: Commitment;
+    // };
+
+    const getNFT = await allNFTs.run();
+    // 또한 Pending처리가 뜨고 있기 떄문에 해당 값을 가져오기 까지 비동기도 동작시킴으로써 값을 올바르게 가져온다.
+
+    // @ts-ignore
+    // @ts-nocheck
+    console.log(getNFT[0].mintAddress.toBase58())
+    // 이상하게 해당 키값이 있지만 보이지 않는다고 컴파일에서 에러가 뜨기 떄문에 주석으로 코드체크를 무시해 줍니다.
+    // 그러면 원하는 NFT Address를 가져 올 수 있습니다.
+
+    //   const largestAccountInfo = await connection.getParsedAccountInfo(
+    //     largestAccounts.value[0].address
+    //   );
 }
 
 init()
