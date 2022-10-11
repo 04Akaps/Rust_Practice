@@ -1,1 +1,0 @@
-window.ALL_CRATES = ["guess_game","libc","rand"];

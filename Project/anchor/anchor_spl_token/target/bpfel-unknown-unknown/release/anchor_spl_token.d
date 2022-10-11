@@ -1,1 +1,0 @@
-/Users/yuhojin/Desktop/rust_tutorial/Project/anchor/anchor_spl_token/target/bpfel-unknown-unknown/release/anchor_spl_token.so: /Users/yuhojin/Desktop/rust_tutorial/Project/anchor/anchor_spl_token/programs/anchor_spl_token/src/errors.rs /Users/yuhojin/Desktop/rust_tutorial/Project/anchor/anchor_spl_token/programs/anchor_spl_token/src/lib.rs

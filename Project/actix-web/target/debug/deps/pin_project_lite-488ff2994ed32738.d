@@ -1,7 +1,0 @@
-/Users/yuhojin/Desktop/Rust/rust_tutorial/Project/actix-web/target/debug/deps/pin_project_lite-488ff2994ed32738.rmeta: /Users/yuhojin/.cargo/registry/src/github.com-1ecc6299db9ec823/pin-project-lite-0.1.12/src/lib.rs
-
-/Users/yuhojin/Desktop/Rust/rust_tutorial/Project/actix-web/target/debug/deps/libpin_project_lite-488ff2994ed32738.rlib: /Users/yuhojin/.cargo/registry/src/github.com-1ecc6299db9ec823/pin-project-lite-0.1.12/src/lib.rs
-
-/Users/yuhojin/Desktop/Rust/rust_tutorial/Project/actix-web/target/debug/deps/pin_project_lite-488ff2994ed32738.d: /Users/yuhojin/.cargo/registry/src/github.com-1ecc6299db9ec823/pin-project-lite-0.1.12/src/lib.rs
-
-/Users/yuhojin/.cargo/registry/src/github.com-1ecc6299db9ec823/pin-project-lite-0.1.12/src/lib.rs:
