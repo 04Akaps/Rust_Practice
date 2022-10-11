@@ -6,3 +6,4 @@ edition = "2021"
 [dependencies]
 actix-web = "4"
 actix-cors = "0.6.3"
+mysql = "22.2.0"

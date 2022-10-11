@@ -9,6 +9,8 @@ use api::get_api::manual_hello;
 
 use api::post_api::echo;
 
+use utils::util::*;
+
 struct AppStateWithCounter {
     app_name: String,
     counter: Mutex<i32>,
@@ -30,6 +32,7 @@ async fn main() -> std::io::Result<()> {
         app_name: "my first rust server".to_string(),
         counter: Mutex::new(0),
     });
+    connect_to_mysql();
 
     HttpServer::new(move || {
         let cors = Cors::default()
