@@ -16,7 +16,7 @@ pub const DB_NAME: &'static str = "test";
 
 // -> 이게 Test Table
 
-pub fn connect_to_mysql() -> mysql::PooledConn {
+pub fn get_db_object() -> mysql::PooledConn {
     let db_url = format!(
         "mysql://{}:{}@{}:{}/{}",
         DB_USER_NAME, DB_PASSWORD, DB_IP, DB_PORT, DB_NAME
