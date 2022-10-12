@@ -25,14 +25,10 @@ async fn hello() -> impl Responder {
 #[get("/selectAll")]
 async fn select_all() -> Result<impl Responder> {
     let mut conn = get_db_object();
-    let query = "select * from myData";
+    let query = "SELECT name, address, age from myData";
 
     let result = conn
-        .query_map(query, |(name, address, age)| MyData {
-            name: name,
-            address: address,
-            age: age,
-        })
+        .query_map(query, |(name, address, age)| MyData { name, address, age })
         .expect("쿼리 실패");
 
     println!("get select All from MyData");
