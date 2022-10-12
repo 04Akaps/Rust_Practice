@@ -32,7 +32,7 @@ async fn main() -> std::io::Result<()> {
         app_name: "my first rust server".to_string(),
         counter: Mutex::new(0),
     });
-    connect_to_mysql();
+    // connect_to_mysql();
 
     HttpServer::new(move || {
         let cors = Cors::default()
@@ -41,7 +41,7 @@ async fn main() -> std::io::Result<()> {
             .max_age(3600);
 
         App::new()
-            .wrap(cors)
+            // .wrap(cors)
             .app_data(status.clone())
             .service(start)
             .service(web::scope("/app").service(echo).service(manual_hello))
