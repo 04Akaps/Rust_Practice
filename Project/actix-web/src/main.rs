@@ -5,7 +5,7 @@ use std::sync::Mutex;
 mod api;
 mod utils;
 
-use api::get_api::manual_hello;
+use api::get_api::*;
 
 use api::post_api::echo;
 
@@ -32,7 +32,7 @@ async fn main() -> std::io::Result<()> {
         app_name: "my first rust server".to_string(),
         counter: Mutex::new(0),
     });
-    // connect_to_mysql();
+    connect_to_mysql();
 
     HttpServer::new(move || {
         let cors = Cors::default()
@@ -44,7 +44,8 @@ async fn main() -> std::io::Result<()> {
             // .wrap(cors)
             .app_data(status.clone())
             .service(start)
-            .service(web::scope("/app").service(echo).service(manual_hello))
+            .service(select_all)
+            .service(web::scope("/app").service(echo))
     })
     .bind(("127.0.0.1", 8080))?
     .run()

@@ -1,4 +1,3 @@
-use mysql::prelude::*;
 use mysql::*;
 
 pub const DB_USER_NAME: &'static str = "root";
@@ -24,10 +23,7 @@ pub fn connect_to_mysql() -> mysql::PooledConn {
     );
 
     let pool = Pool::new(db_url.as_str()).unwrap();
-    // &str 타입이 필요하기 떄문에 atr로 변경
-    // -> format은 String타입
-
-    let conn = pool.get_conn().expect("에러가 뜨면 너의 잘못인거야...");
+    let conn = pool.get_conn().unwrap();
 
     return conn;
 }
